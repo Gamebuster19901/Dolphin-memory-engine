@@ -26,34 +26,40 @@ bool LinuxDolphinProcess::obtainEmuRAMInformations()
       {
         u64 firstAddress = 0;
         u64 SecondAddress = 0;
-        std::string firstAddressStr("0x" + line.substr(0, 12));
-        std::string secondAddressStr("0x" + line.substr(13, 12));
 
-        firstAddress = std::stoul(firstAddressStr, nullptr, 16);
-        SecondAddress = std::stoul(secondAddressStr, nullptr, 16);
+        int length = line.find('-');
+        
+        if(length > 0 && length < line.length()) {
 
-        if (MEM1Found)
-        {
-          if (firstAddress == m_emuRAMAddressStart + 0x10000000)
-          {
-            m_MEM2Present = true;
-            break;
-          }
-          else if (firstAddress > m_emuRAMAddressStart + 0x10000000)
-          {
-            m_MEM2Present = false;
-            break;
-          }
-          continue;
-        }
+		std::string firstAddressStr("0x" + line.substr(0, length));
+		std::string secondAddressStr("0x" + line.substr(length + 1, length));
 
-        u64 test = SecondAddress - firstAddress;
+		firstAddress = std::stoul(firstAddressStr, nullptr, 16);
+		SecondAddress = std::stoul(secondAddressStr, nullptr, 16);
 
-        if (SecondAddress - firstAddress == 0x2000000)
-        {
-          m_emuRAMAddressStart = firstAddress;
-          MEM1Found = true;
-        }
+		if (MEM1Found)
+		{
+		  if (firstAddress == m_emuRAMAddressStart + 0x10000000)
+		  {
+		    m_MEM2Present = true;
+		    break;
+		  }
+		  else if (firstAddress > m_emuRAMAddressStart + 0x10000000)
+		  {
+		    m_MEM2Present = false;
+		    break;
+		  }
+		  continue;
+		}
+
+		u64 test = SecondAddress - firstAddress;
+
+		if (SecondAddress - firstAddress == 0x2000000)
+		{
+		  m_emuRAMAddressStart = firstAddress;
+		  MEM1Found = true;
+		}
+         }
       }
     }
   }
